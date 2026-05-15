@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>AI Resume Coach</title>
+
+    <style>
+
+        body{
+            margin:0;
+            padding:0;
+            background:#0f172a;
+            font-family:Arial, Helvetica, sans-serif;
+            color:white;
+        }
+
+        .container{
+            width:90%;
+            max-width:900px;
+            margin:auto;
+            padding-top:50px;
+        }
+
+        h1{
+            text-align:center;
+            font-size:42px;
+            margin-bottom:10px;
+        }
+
+        p{
+            text-align:center;
+            color:#cbd5e1;
+            margin-bottom:40px;
+        }
+
+        .chat-box{
+            background:#1e293b;
+            border-radius:12px;
+            padding:20px;
+            height:500px;
+            overflow-y:auto;
+            box-shadow:0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .message{
+            margin-bottom:20px;
+            padding:15px;
+            border-radius:10px;
+            line-height:1.6;
+            white-space:pre-wrap;
+        }
+
+        .user{
+            background:#2563eb;
+        }
+
+        .bot{
+            background:#334155;
+        }
+
+        .input-area{
+            display:flex;
+            gap:10px;
+            margin-top:20px;
+        }
+
+        input{
+            flex:1;
+            padding:15px;
+            border:none;
+            border-radius:10px;
+            font-size:16px;
+        }
+
+        button{
+            background:#2563eb;
+            color:white;
+            border:none;
+            padding:15px 25px;
+            border-radius:10px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        button:hover{
+            background:#1d4ed8;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>AI Resume Coach</h1>
+
+        <p>
+            Ask anything about resumes, interviews, ATS optimization, or software engineering careers.
+        </p>
+
+        <div class="chat-box" id="chatBox"></div>
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="userInput"
+                placeholder="Ask something..."
+            />
+
+            <button onclick="sendMessage()">
+                Send
+            </button>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        async function sendMessage(){
+
+            const input = document.getElementById("userInput");
+            const chatBox = document.getElementById("chatBox");
+
+            const message = input.value.trim();
+
+            if(!message){
+                return;
+            }
+
+            const userDiv = document.createElement("div");
+            userDiv.className = "message user";
+            userDiv.innerText = message;
+
+            chatBox.appendChild(userDiv);
+
+            input.value = "";
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try{
+
+                const response = await fetch("/chat", {
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+
+                    body: JSON.stringify({
+                        message: message
+                    })
+
+                });
+
+                const data = await response.json();
+
+                const botDiv = document.createElement("div");
+
+                botDiv.className = "message bot";
+
+                botDiv.innerText = data.reply || data.error;
+
+                chatBox.appendChild(botDiv);
+
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            }
+            catch(error){
+
+                const errorDiv = document.createElement("div");
+
+                errorDiv.className = "message bot";
+
+                errorDiv.innerText = "Error connecting to server.";
+
+                chatBox.appendChild(errorDiv);
+            }
+        }
+
+    </script>
+
+</body>
+</html>
